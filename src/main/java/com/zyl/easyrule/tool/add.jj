@@ -1,0 +1,103 @@
+/* calculator0.jj An interactive calculator. */
+options {
+    STATIC = false ;
+}
+PARSER_BEGIN(Calculator)
+    import java.io.*;
+    import java.util.*;
+    public class Calculator {
+        public static void main( String[] args )
+            throws ParseException, TokenMgrError, NumberFormatException {
+            Map<String,Boolean> map = new HashMap<>();
+            map.put("zyl", true);
+            map.put("wqc", true);
+            map.put("ljq", false);
+            map.put("cxd", false);
+            String pattern = "(zyl || cxd) && (wqc || ljq)";
+            StringReader strReader  = new StringReader(pattern);
+            Calculator parser = new Calculator(strReader);
+
+            parser.Start(map) ;
+        }
+        
+    }
+PARSER_END(Calculator)
+
+
+SKIP : { " " }
+TOKEN : { < EOL : "\n" | "\r" | "\r\n" | "$"> }
+TOKEN : { < OPEN_PAR : "(" > }
+TOKEN : { < CLOSE_PAR : ")" > }
+TOKEN : { < AND : "&&" > }
+TOKEN : { < OR : "||" > }
+TOKEN : { < ID : (["a"-"z"] | ["A"-"Z"])+(["0"-"9"])*(["a"-"z"] | ["A"-"Z"])* > }
+
+
+
+boolean Start(Map<String,Boolean> map) throws NumberFormatException :
+{boolean value;}
+{
+    value = Expression(map)
+    <EOF> 
+    {
+        return value;
+    }
+}
+
+
+boolean Expression(Map<String,Boolean> map) : 
+{
+    Boolean value;
+}
+{
+    value = Primary(map)  
+    (
+        <OR>
+        {
+            Boolean v = Primary(map);
+
+            if(v == null) {
+                v = false;
+            }
+            value = value || v;   
+             
+        }
+        |
+        <AND>
+        {
+            Boolean v = Primary(map);
+
+            if(v == null) {
+                v = false;
+            }
+            value = value && v;  
+     
+        }
+    )*
+    { 
+        return value; 
+    }    
+      
+}
+
+
+boolean Primary(Map<String,Boolean> map) : 
+{
+    Token t;
+    Boolean value;
+}
+{
+    t=<ID>
+    { 
+        value = map.get(t.image); 
+        if(value == null) {
+            return false;
+        }
+        return value;
+    }
+    |    <OPEN_PAR> value=Expression(map) <CLOSE_PAR>  
+    { 
+        return value; 
+    }      
+}
+
