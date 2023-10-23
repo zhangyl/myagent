@@ -91,7 +91,7 @@ public class Test {
 		allResult.put("myRuleC", true);
         String expression = "( myRuleA || myRuleB) && myRuleC";
 		try {
-			calculator.Start(allResult);
+//			calculator.Start(allResult);
 		} catch (NumberFormatException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
